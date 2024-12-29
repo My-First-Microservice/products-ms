@@ -2,6 +2,7 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { PrismaClient } from '@prisma/client';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 @Injectable()
 export class ProductsService extends PrismaClient implements OnModuleInit {
@@ -18,14 +19,30 @@ export class ProductsService extends PrismaClient implements OnModuleInit {
     });
   }
 
-  findAll() {
-    return `This action returns all products`;
+  async findAll(paginationDto: PaginationDto) {
+    const { page, limit } = paginationDto;
+
+    const total = await this.product.count();
+    const lastPage = Math.ceil(total / limit);
+
+    return {
+      data: await this.product.findMany({
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+      meta: {
+        page,
+        total,
+        lastPage,
+      },
+    };
   }
 
   findOne(id: number) {
     return `This action returns a #${id} product`;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   update(id: number, updateProductDto: UpdateProductDto) {
     return `This action updates a #${id} product`;
   }
