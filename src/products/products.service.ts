@@ -61,8 +61,11 @@ export class ProductsService extends PrismaClient implements OnModuleInit {
   async update(id: number, updateProductDto: UpdateProductDto) {
     await this.findOne(id);
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { id: __, ...data } = updateProductDto;
+
     return await this.product.update({
-      data: updateProductDto,
+      data,
       where: { id },
     });
   }
